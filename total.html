@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>円：circles</title>
+
+<!-- 1. ここにP5.jsを読み込む -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+
+<!-- 2.以下にsetup関数とdraw関数を定義 -->
+<script>
+
+let room = "s1316214";
+let socket = io.connect('https://qa.fujimura.com');    
+let myid;
+  
+let x = 0;
+let y = 0;
+let speedX = 0;
+let speedY = 0;
+let gamma = 0;
+let beta = 0;
+let r = 100;
+let m = 100;
+let a = 100;
+let q = 255;
+let w = 255;
+let e = 255;
+    
+socket.on('mylogin', function(data) {
+  document.querySelector("#room").innerHTML = room;
+  myid = data;
+  socket.emit('join', room); // 受信room IDを指定
+  document.querySelector("#myid").innerHTML = myid;
+  console.log("あなたのID: ", myid);
+});
+            
+socket.on('sensor', function(data) {
+  gamma = parseInt(data.g);
+  beta = parseInt(data.b);
+  
+  speedX = gamma;
+  speedY = beta;
+  console.log(data);
+});  
+  
+function setup() {
+  createCanvas(800, 800, WEBGL);
+  ambientLight(125, 125, 125);
+  directionalLight(255, 255, 255, 1, 1, 1);
+  pointLight(255, 255, 255, 0, 0, 800);
+  noStroke();
+}
+
+function draw() {
+  background(0);
+  orbitControl();
+    
+  push();
+  rotateX(-PI*beta/180);
+  rotateY(PI*gamma/180);
+  specularMaterial(r,m,a,25);
+  translate(0,0,-50);
+  box(400,400,400);
+  pop();
+  
+  if(gamma<0 || beta>90){
+     r=random(255);
+     m=random(255);
+     a=random(255);
+    
+  }
+}
+
+
+</script>
+</head>
+<body>
+  <div>ID: <span id="myid"></span></div>
+  <div>room: <span id="room"></span></div>
+</body>
+</html>
